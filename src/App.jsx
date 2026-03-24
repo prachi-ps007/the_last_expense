@@ -7,6 +7,7 @@ import AddTransaction from "./pages/AddTransaction";
 import Budget from "./pages/Budget";
 import Insights from "./pages/Insights";
 
+
 function App() {
   return (
     <BrowserRouter>
