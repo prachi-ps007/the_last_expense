@@ -5,9 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import AddTransaction from "./pages/AddTransaction";
 import Budget from "./pages/Budget";
-
-// import Budget from "./pages/Budget";
-// import Analytics from "./pages/Analytics";
+import Insights from "./pages/Insights";
 
 function App() {
   return (
@@ -18,7 +16,7 @@ function App() {
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/transactions/new" element={<AddTransaction />} />
         <Route path="/budget" element={<Budget />} />
-        {/* <Route path="/analytics" element={<Analytics />} /> */} 
+        <Route path="/insights" element={<Insights />} />
       </Routes>
     </BrowserRouter>
   );

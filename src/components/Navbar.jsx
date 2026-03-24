@@ -5,7 +5,7 @@ const navItems = [
   { name: "TRANSACTIONS", path: "/transactions" },
   { name: "ADD TRANSACTION", path: "/transactions/new" },
   { name: "BUDGET", path: "/budget" },
-  { name: "INSIGHTS", path: "/analytics" },
+  { name: "INSIGHTS", path: "/insights" },
 ];
 
 function Navbar() {
