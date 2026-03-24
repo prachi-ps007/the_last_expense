@@ -1,0 +1,11 @@
+@keyframes gold-glow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.5)); }
+  50% { filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.8)); }
+}
+.animate-gold-glow { animation: gold-glow 3s infinite ease-in-out; }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.animate-blink { animation: blink 1s step-end infinite; }
