@@ -1,5 +1,7 @@
-import React, { useEffect, useState, useCallback } from "react";
+
+import React, { useEffect, useState, useCallback, useContext } from "react";
 import { Rocket, ArrowLeftRight, RefreshCw } from "lucide-react";
+import { FinanceContext } from "../context/FinanceContext";
 
 const CURRENCIES = ["INR", "USD", "EUR", "GBP", "JPY", "AED", "SGD", "CAD", "AUD", "CHF", "CNY"];
 
@@ -213,7 +215,7 @@ function CurrencyConverter() {
         )}
       </div>
 
-      {/* Quick Pair Chips — pushed to bottom */}
+      {/* Quick Pair Chips */}
       <div className="mt-auto pt-3 flex flex-wrap gap-1.5">
         {QUICK_PAIRS.map(({ from, to }) => (
           <button
@@ -245,12 +247,82 @@ function CurrencyConverter() {
   );
 }
 
+// ── WEALTH VELOCITY CALCULATIONS ─────────────────────────────────────────────
+//
+// velocity  = net savings per day (income - expense) over the current month
+//             so if you spend more than you earn, this goes negative
+//
+// progress  = (totalIncome - totalExpense) / totalIncome × 100
+//             clamped to [0, 100]; represents how much of income is being saved
+//
+// monthlyTarget = totalIncome for the current month (your ceiling)
+//
+// thisMonth = net amount saved this month (income - expense)
+//
+// savingsRate = (totalIncome - totalExpense) / totalIncome × 100
+//               clamped to 0 if in deficit
+//
+function computeVelocity(transactions) {
+  const now       = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear  = now.getFullYear();
+  const dayOfMonth = now.getDate(); // days elapsed so far this month
+
+  // Filter to current month only
+  const monthTxns = transactions.filter((txn) => {
+    const d = new Date(txn.date);
+    return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+  });
+
+  const monthIncome  = monthTxns
+    .filter((t) => t.type === "income")
+    .reduce((s, t) => s + Number(t.amount), 0);
+
+  const monthExpense = monthTxns
+    .filter((t) => t.type === "expense")
+    .reduce((s, t) => s + Number(t.amount), 0);
+
+  const netSaved      = monthIncome - monthExpense;
+  // Daily velocity: net rupees saved per day so far this month
+  const velocity      = dayOfMonth > 0 ? Math.round(netSaved / dayOfMonth) : 0;
+
+  // Progress ring: what % of income is net-saved (0–100)
+  const progress      = monthIncome > 0
+    ? Math.max(0, Math.min(100, Math.round((netSaved / monthIncome) * 100)))
+    : 0;
+
+  // Savings rate (same as progress here, kept named separately for the card)
+  const savingsRate   = progress;
+
+  // Format helpers
+  const fmt = (n) => {
+    const abs = Math.abs(n);
+    if (abs >= 100000) return `${(n / 100000).toFixed(1)}L`;
+    if (abs >= 1000)   return `${(n / 1000).toFixed(1)}K`;
+    return String(n);
+  };
+
+  return {
+    velocity,          // ₹/day — can be negative
+    progress,          // 0–100
+    savingsRate,       // 0–100
+    thisMonth: netSaved,
+    monthlyTarget: monthIncome, // income is the ceiling
+    fmt,
+  };
+}
+
 function Dashboard() {
+  // ── Pull live data from context ──────────────────────────────────────────
+  const { transactions, totalIncome, totalExpense, balance } =
+    useContext(FinanceContext);
+
+  const { velocity, progress, savingsRate, thisMonth, monthlyTarget, fmt } =
+    computeVelocity(transactions);
+
+  // ── Typewriter (unchanged) ───────────────────────────────────────────────
   const fullText = "!A Penny Saved Is A Penny Earned!";
   const [text, setText] = useState("");
-
-  const velocity = 1200;
-  const progress = 65;
 
   useEffect(() => {
     let index = 0;
@@ -264,6 +336,13 @@ function Dashboard() {
     const delay = setTimeout(startTyping, 500);
     return () => clearTimeout(delay);
   }, []);
+
+  // Ring colour: green when saving, amber when breaking even, red when deficit
+  const ringColor = progress > 30
+    ? "#D4AF37"
+    : progress > 0
+    ? "#F59E0B"
+    : "#EF4444";
 
   return (
     <div className="min-h-screen pt-20 bg-gradient-to-b from-black via-slate-950 to-black relative overflow-hidden">
@@ -296,11 +375,11 @@ function Dashboard() {
         </h2>
       </div>
 
-      {/* Widgets Row — Wealth Velocity + Currency Converter side by side */}
+      {/* Widgets Row */}
       <div className="relative z-10 px-70 pb-16">
         <div className="max-w-9xl mx-auto grid grid-cols-2 md:grid-cols-2 gap-12 items-stretch">
 
-          {/* Wealth Velocity */}
+          {/* ── Wealth Velocity ── */}
           <div
             className="p-8 rounded-3xl backdrop-blur-xl border border-white/10 shadow-[0_0_40px_rgba(212,175,55,0.15)] flex flex-col justify-between"
             style={{ background: "rgba(255,255,255,0.05)" }}
@@ -312,51 +391,98 @@ function Dashboard() {
             <div className="flex-1 flex items-center justify-center">
               <div className="relative w-52 h-52">
                 <svg className="w-full h-full rotate-[-90deg]">
+                  {/* Track */}
                   <circle
                     cx="104" cy="104" r="90"
                     stroke="rgba(255,255,255,0.1)"
                     strokeWidth="10"
                     fill="transparent"
                   />
+                  {/* Progress ring — driven by real data */}
                   <circle
                     cx="104" cy="104" r="90"
-                    stroke="#D4AF37"
+                    stroke={ringColor}
                     strokeWidth="10"
                     fill="transparent"
                     strokeDasharray={2 * Math.PI * 90}
                     strokeDashoffset={(2 * Math.PI * 90) * (1 - progress / 100)}
                     strokeLinecap="round"
-                    className="transition-all duration-700 drop-shadow-[0_0_10px_rgba(212,175,55,0.6)]"
+                    className="transition-all duration-700"
+                    style={{ filter: `drop-shadow(0 0 10px ${ringColor}99)` }}
                   />
                 </svg>
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                   <div className="flex items-center gap-2 mb-2">
-                    <Rocket className="text-[#D4AF37] animate-pulse" size={18} />
+                    <Rocket
+                      size={18}
+                      className="animate-pulse"
+                      style={{ color: ringColor }}
+                    />
                     <span className="text-xs text-white/50 tracking-wide">Momentum</span>
                   </div>
-                  <p className="text-3xl font-light text-white">₹{velocity}/day</p>
-                  <p className="text-xs text-white/50 mt-1">{progress}% of monthly target</p>
+                  {/* Velocity — red & prefixed with − if deficit */}
+                  <p
+                    className="text-3xl font-light"
+                    style={{ color: velocity >= 0 ? "#fff" : "#EF4444" }}
+                  >
+                    {velocity < 0 ? "−" : ""}₹{fmt(Math.abs(velocity))}/day
+                  </p>
+                  <p className="text-xs text-white/50 mt-1">
+                    {progress}% of monthly target
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Bottom stats to fill height naturally */}
+            {/* Bottom stats — all from real context data */}
             <div className="mt-6 grid grid-cols-3 gap-2 text-center">
               {[
-                { label: "Savings Rate", value: "32%" },
-                { label: "This Month", value: "₹36K" },
-                { label: "Target", value: "₹55K" },
-              ].map(({ label, value }) => (
-                <div key={label} className="rounded-xl py-2 px-1" style={{ background: "rgba(212,175,55,0.06)", border: "1px solid rgba(212,175,55,0.12)" }}>
-                  <p className="text-[#D4AF37] font-bold text-sm" style={{ fontFamily: "Space Mono, monospace" }}>{value}</p>
+                {
+                  label: "Savings Rate",
+                  value: `${savingsRate}%`,
+                  warn: savingsRate <= 0,
+                },
+                {
+                  label: "This Month",
+                  // Net saved (income − expense); red if negative
+                  value: `${thisMonth < 0 ? "−" : ""}₹${fmt(Math.abs(thisMonth))}`,
+                  warn: thisMonth < 0,
+                },
+                {
+                  label: "Income",
+                  value: `₹${fmt(monthlyTarget)}`,
+                  warn: false,
+                },
+              ].map(({ label, value, warn }) => (
+                <div
+                  key={label}
+                  className="rounded-xl py-2 px-1"
+                  style={{
+                    background: warn
+                      ? "rgba(239,68,68,0.08)"
+                      : "rgba(212,175,55,0.06)",
+                    border: warn
+                      ? "1px solid rgba(239,68,68,0.2)"
+                      : "1px solid rgba(212,175,55,0.12)",
+                  }}
+                >
+                  <p
+                    className="font-bold text-sm"
+                    style={{
+                      fontFamily: "Space Mono, monospace",
+                      color: warn ? "#EF4444" : "#D4AF37",
+                    }}
+                  >
+                    {value}
+                  </p>
                   <p className="text-white/30 text-[9px] tracking-wide mt-0.5">{label}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Currency Converter */}
+          {/* Currency Converter — unchanged */}
           <CurrencyConverter />
 
         </div>
@@ -369,27 +495,23 @@ function Dashboard() {
 export default Dashboard;
 
 /*
-Add to index.css if not already present:
+  index.css additions (if not already present):
 
-.star {
-  position: absolute;
-  background: white;
-  border-radius: 50%;
-  opacity: 0.8;
-  animation: twinkle 3s infinite ease-in-out;
-}
-
-@keyframes twinkle {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 1; }
-}
-
-.animate-blink {
-  animation: blink 1s step-end infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: twinkle 3s infinite ease-in-out;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; }
+    50%       { opacity: 1;   }
+  }
+  .animate-blink { animation: blink 1s step-end infinite; }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
 */
+

@@ -54,35 +54,25 @@ const defaultTransactions = [
   // 💼 More income
   { id: "29", title: "Bonus", amount: 10000, category: "Income", type: "income", date: "2026-03-22" },
   { id: "30", title: "Freelance Backend Work", amount: 18000, category: "Freelance", type: "income", date: "2026-03-23" },
+  { id: "31", title: "Freelance Frontend Work", amount: 200000, category: "Freelance", type: "income", date: "2026-03-24" },
 ];
 
 export const FinanceProvider = ({ children }) => {
   // 🌟 STATE
-  const [transactions, setTransactions] = useState([]);
-  const [budget, setBudget] = useState(0);
-
-  // 📥 LOAD DATA (WITH DEMO SEED)
- useEffect(() => {
-  const storedTransactions = localStorage.getItem("transactions");
-  const storedBudget = localStorage.getItem("budget");
-
-  if (storedTransactions) {
-    const parsed = JSON.parse(storedTransactions);
-
-    // ✅ CHECK IF EMPTY ARRAY
-    if (parsed.length > 0) {
-      setTransactions(parsed);
-    } else {
-      setTransactions(defaultTransactions);
-    }
-  } else {
-    setTransactions(defaultTransactions);
+ // ✅ ADD these instead:
+const [transactions, setTransactions] = useState(() => {
+  const stored = localStorage.getItem("transactions");
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    return parsed.length > 0 ? parsed : defaultTransactions;
   }
+  return defaultTransactions;
+});
 
-  if (storedBudget) {
-    setBudget(JSON.parse(storedBudget));
-  }
-}, []);
+const [budget, setBudget] = useState(() => {
+  const stored = localStorage.getItem("budget");
+  return stored ? JSON.parse(stored) : 0;
+});
 
   // 💾 SAVE TRANSACTIONS
   useEffect(() => {
