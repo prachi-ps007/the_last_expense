@@ -1,4 +1,4 @@
-### 🌌 Expense Tracker — A Layered Financial Experience
+# 🌌 Expense Tracker — A Layered Financial Experience
 
 “Dare to be different — for it is in your individuality that your true strength lies.”
 
