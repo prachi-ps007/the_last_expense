@@ -26,17 +26,23 @@ That’s what makes it different.
 
 Each section of the app represents a different layer of financial awareness:
 
-🌌 Space (Home)
+## 🌌 Space (Home)
 Represents the vastness of your financial life — the bigger picture.
-☁️ Sky (Transactions)
+
+## ☁️ Sky (Transactions)
 Daily expenses and income — things that come and go.
-🚶‍♀️ Crosswalk (Add Transaction)
+
+## 🚶‍♀️ Crosswalk (Add Transaction)
 Every entry is a decision — a step that shapes your direction.
-🌱 Garden (Budget)
+
+## 🌱 Garden (Budget)
 What you nurture grows — discipline and financial habits.
-🔮 Insights (Prophecy)
+
+## 🔮 Insights (Prophecy)
 Understanding patterns and predicting where your choices lead.
-🚀 Features
+
+### 🚀 Features
+
 💸 Track income and expenses
 📊 Visual financial summaries
 🔍 Category filtering & search
