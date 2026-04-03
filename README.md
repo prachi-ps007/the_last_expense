@@ -1,8 +1,8 @@
-🌌 Expense Tracker — A Layered Financial Experience
+### 🌌 Expense Tracker — A Layered Financial Experience
 
 “Dare to be different — for it is in your individuality that your true strength lies.”
 
-✨ Overview
+## ✨ Overview
 
 This is not just a typical expense tracker.
 
@@ -12,7 +12,7 @@ it’s movement, decisions, patterns, and growth.
 Instead of building only features, this project focuses on feeling and perspective—
 turning financial tracking into something more intuitive and meaningful.
 
-🧠 Core Idea
+## 🧠 Core Idea
 
 In a world where most applications feel similar—
 optimized, polished, and often generated—
@@ -22,7 +22,7 @@ this project aims to bring back individuality.
 Your work should carry a piece of you.
 That’s what makes it different.
 
-🌍 Concept: Layers of Experience
+## 🌍 Concept: Layers of Experience
 
 Each section of the app represents a different layer of financial awareness:
 
@@ -50,12 +50,12 @@ Styling: CSS / Tailwind (update if needed)
 State Management: (Context API / Hooks — update if needed)
 Other Tools: (add if you used any)
 
-📌 Status
+## 📌 Status
 
 💻 Built as my first React project
 🚧 Still learning, still refining, still evolving
 
-💭 Philosophy
+## 💭 Philosophy
 
 In a time where AI can generate almost anything,
 individuality is the only thing it can’t replicate.
