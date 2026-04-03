@@ -18,7 +18,7 @@ function Navbar() {
   key={item.name}
   to={item.path}
  className={({ isActive }) =>
-  `font-[Amatic_SC] text-2xl tracking-widest font-extrabold px-2 py-1 transition-all duration-300 
+  `font-[Amatic_SC] text-2xl group tracking-widest font-extrabold px-2 py-1 transition-all duration-300 
   ${isActive 
     ? "text-indigo-300 border-b-2 border-indigo-400" 
     : "text-white hover:text-white hover:border-b-2 hover:border-indigo-400"}`
